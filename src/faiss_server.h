@@ -34,6 +34,10 @@ class FaissServer final : public FaissService::Service {
                           const faiss::SearchByIdRequest* request,
                           faiss::SearchByIdResponse* response) override;
 
+  grpc::Status AddVector(grpc::ServerContext* context,
+                         const faiss::AddVectorRequest *request,
+                         faiss::AddVectorResponse *response) override;
+
  private:
   const std::shared_ptr<logger>& logger_;
   const uint& default_top_k_;

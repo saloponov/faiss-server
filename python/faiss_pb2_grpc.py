@@ -6,8 +6,16 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 class FaissServiceStub(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """message RemoveVectorByIdRequest {
+  uint64 id = 1;
+  uint64 vector_id = 2;
+  }
+
+  message RemoveVectorByIdResponse {
+
+  }
+
+  """
 
   def __init__(self, channel):
     """Constructor.
@@ -30,16 +38,24 @@ class FaissServiceStub(object):
         request_serializer=faiss__pb2.SearchByIdRequest.SerializeToString,
         response_deserializer=faiss__pb2.SearchByIdResponse.FromString,
         )
-    self.Add = channel.unary_unary(
-        '/faiss.FaissService/Add',
-        request_serializer=faiss__pb2.AddRequest.SerializeToString,
-        response_deserializer=faiss__pb2.AddResponse.FromString,
+    self.AddVector = channel.unary_unary(
+        '/faiss.FaissService/AddVector',
+        request_serializer=faiss__pb2.AddVectorRequest.SerializeToString,
+        response_deserializer=faiss__pb2.AddVectorResponse.FromString,
         )
 
 
 class FaissServiceServicer(object):
-  # missing associated documentation comment in .proto file
-  pass
+  """message RemoveVectorByIdRequest {
+  uint64 id = 1;
+  uint64 vector_id = 2;
+  }
+
+  message RemoveVectorByIdResponse {
+
+  }
+
+  """
 
   def Heartbeat(self, request, context):
     # missing associated documentation comment in .proto file
@@ -62,9 +78,9 @@ class FaissServiceServicer(object):
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
 
-  def Add(self, request, context):
-    # missing associated documentation comment in .proto file
-    pass
+  def AddVector(self, request, context):
+    """rpc RemoveVectorByIdRequest (RemoveVectorByIdRequest) returns (RemoveVectorByIdResponse);
+    """
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -87,10 +103,10 @@ def add_FaissServiceServicer_to_server(servicer, server):
           request_deserializer=faiss__pb2.SearchByIdRequest.FromString,
           response_serializer=faiss__pb2.SearchByIdResponse.SerializeToString,
       ),
-      'Add': grpc.unary_unary_rpc_method_handler(
-          servicer.Add,
-          request_deserializer=faiss__pb2.AddRequest.FromString,
-          response_serializer=faiss__pb2.AddResponse.SerializeToString,
+      'AddVector': grpc.unary_unary_rpc_method_handler(
+          servicer.AddVector,
+          request_deserializer=faiss__pb2.AddVectorRequest.FromString,
+          response_serializer=faiss__pb2.AddVectorResponse.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

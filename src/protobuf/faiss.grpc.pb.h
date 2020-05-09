@@ -6,26 +6,37 @@
 
 #include "faiss.pb.h"
 
+#include <functional>
+#include <grpc/impl/codegen/port_platform.h>
 #include <grpcpp/impl/codegen/async_generic_service.h>
 #include <grpcpp/impl/codegen/async_stream.h>
 #include <grpcpp/impl/codegen/async_unary_call.h>
-#include <grpcpp/impl/codegen/method_handler_impl.h>
+#include <grpcpp/impl/codegen/client_callback.h>
+#include <grpcpp/impl/codegen/client_context.h>
+#include <grpcpp/impl/codegen/completion_queue.h>
+#include <grpcpp/impl/codegen/message_allocator.h>
+#include <grpcpp/impl/codegen/method_handler.h>
 #include <grpcpp/impl/codegen/proto_utils.h>
 #include <grpcpp/impl/codegen/rpc_method.h>
+#include <grpcpp/impl/codegen/server_callback.h>
+#include <grpcpp/impl/codegen/server_callback_handlers.h>
+#include <grpcpp/impl/codegen/server_context.h>
 #include <grpcpp/impl/codegen/service_type.h>
 #include <grpcpp/impl/codegen/status.h>
 #include <grpcpp/impl/codegen/stub_options.h>
 #include <grpcpp/impl/codegen/sync_stream.h>
 
-namespace grpc {
-class CompletionQueue;
-class Channel;
-class ServerCompletionQueue;
-class ServerContext;
-}  // namespace grpc
-
 namespace faiss {
 
+// message RemoveVectorByIdRequest {
+//    uint64 id = 1;
+//    uint64 vector_id = 2;
+// }
+//
+// message RemoveVectorByIdResponse {
+//
+// }
+//
 class FaissService final {
  public:
   static constexpr char const* service_full_name() {
@@ -55,13 +66,74 @@ class FaissService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::SearchByIdResponse>> PrepareAsyncSearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::SearchByIdResponse>>(PrepareAsyncSearchByIdRaw(context, request, cq));
     }
-    virtual ::grpc::Status Add(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::faiss::AddResponse* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>> AsyncAdd(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>>(AsyncAddRaw(context, request, cq));
+    virtual ::grpc::Status AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::faiss::AddVectorResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>> AsyncAddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>>(AsyncAddVectorRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>> PrepareAsyncAdd(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>>(PrepareAsyncAddRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>> PrepareAsyncAddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>>(PrepareAsyncAddVectorRaw(context, request, cq));
     }
+    // rpc RemoveVectorByIdRequest (RemoveVectorByIdRequest) returns (RemoveVectorByIdResponse);
+    class experimental_async_interface {
+     public:
+      virtual ~experimental_async_interface() {}
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, std::function<void(::grpc::Status)>) = 0;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      virtual void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, std::function<void(::grpc::Status)>) = 0;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      virtual void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, std::function<void(::grpc::Status)>) = 0;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      virtual void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, std::function<void(::grpc::Status)>) = 0;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      virtual void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      #else
+      virtual void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      #endif
+      // rpc RemoveVectorByIdRequest (RemoveVectorByIdRequest) returns (RemoveVectorByIdResponse);
+    };
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    typedef class experimental_async_interface async_interface;
+    #endif
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    async_interface* async() { return experimental_async(); }
+    #endif
+    virtual class experimental_async_interface* experimental_async() { return nullptr; }
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::HeartbeatResponse>* AsyncHeartbeatRaw(::grpc::ClientContext* context, const ::google::protobuf::Empty& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::HeartbeatResponse>* PrepareAsyncHeartbeatRaw(::grpc::ClientContext* context, const ::google::protobuf::Empty& request, ::grpc::CompletionQueue* cq) = 0;
@@ -69,8 +141,8 @@ class FaissService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::SearchResponse>* PrepareAsyncSearchRaw(::grpc::ClientContext* context, const ::faiss::SearchRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::SearchByIdResponse>* AsyncSearchByIdRaw(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::SearchByIdResponse>* PrepareAsyncSearchByIdRaw(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>* AsyncAddRaw(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddResponse>* PrepareAsyncAddRaw(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>* AsyncAddVectorRaw(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::faiss::AddVectorResponse>* PrepareAsyncAddVectorRaw(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -96,28 +168,87 @@ class FaissService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::SearchByIdResponse>> PrepareAsyncSearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::SearchByIdResponse>>(PrepareAsyncSearchByIdRaw(context, request, cq));
     }
-    ::grpc::Status Add(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::faiss::AddResponse* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>> AsyncAdd(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>>(AsyncAddRaw(context, request, cq));
+    ::grpc::Status AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::faiss::AddVectorResponse* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>> AsyncAddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>>(AsyncAddVectorRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>> PrepareAsyncAdd(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>>(PrepareAsyncAddRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>> PrepareAsyncAddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>>(PrepareAsyncAddVectorRaw(context, request, cq));
     }
+    class experimental_async final :
+      public StubInterface::experimental_async_interface {
+     public:
+      void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, std::function<void(::grpc::Status)>) override;
+      void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, std::function<void(::grpc::Status)>) override;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void Heartbeat(::grpc::ClientContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void Heartbeat(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::HeartbeatResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, std::function<void(::grpc::Status)>) override;
+      void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, std::function<void(::grpc::Status)>) override;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void Search(::grpc::ClientContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void Search(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, std::function<void(::grpc::Status)>) override;
+      void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, std::function<void(::grpc::Status)>) override;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void SearchById(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void SearchById(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::SearchByIdResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, std::function<void(::grpc::Status)>) override;
+      void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, std::function<void(::grpc::Status)>) override;
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void AddVector(::grpc::ClientContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+      #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      #else
+      void AddVector(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::faiss::AddVectorResponse* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      #endif
+     private:
+      friend class Stub;
+      explicit experimental_async(Stub* stub): stub_(stub) { }
+      Stub* stub() { return stub_; }
+      Stub* stub_;
+    };
+    class experimental_async_interface* experimental_async() override { return &async_stub_; }
 
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
+    class experimental_async async_stub_{this};
     ::grpc::ClientAsyncResponseReader< ::faiss::HeartbeatResponse>* AsyncHeartbeatRaw(::grpc::ClientContext* context, const ::google::protobuf::Empty& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::faiss::HeartbeatResponse>* PrepareAsyncHeartbeatRaw(::grpc::ClientContext* context, const ::google::protobuf::Empty& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::faiss::SearchResponse>* AsyncSearchRaw(::grpc::ClientContext* context, const ::faiss::SearchRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::faiss::SearchResponse>* PrepareAsyncSearchRaw(::grpc::ClientContext* context, const ::faiss::SearchRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::faiss::SearchByIdResponse>* AsyncSearchByIdRaw(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::faiss::SearchByIdResponse>* PrepareAsyncSearchByIdRaw(::grpc::ClientContext* context, const ::faiss::SearchByIdRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>* AsyncAddRaw(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::faiss::AddResponse>* PrepareAsyncAddRaw(::grpc::ClientContext* context, const ::faiss::AddRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>* AsyncAddVectorRaw(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::faiss::AddVectorResponse>* PrepareAsyncAddVectorRaw(::grpc::ClientContext* context, const ::faiss::AddVectorRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_Heartbeat_;
     const ::grpc::internal::RpcMethod rpcmethod_Search_;
     const ::grpc::internal::RpcMethod rpcmethod_SearchById_;
-    const ::grpc::internal::RpcMethod rpcmethod_Add_;
+    const ::grpc::internal::RpcMethod rpcmethod_AddVector_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -128,12 +259,13 @@ class FaissService final {
     virtual ::grpc::Status Heartbeat(::grpc::ServerContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response);
     virtual ::grpc::Status Search(::grpc::ServerContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response);
     virtual ::grpc::Status SearchById(::grpc::ServerContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response);
-    virtual ::grpc::Status Add(::grpc::ServerContext* context, const ::faiss::AddRequest* request, ::faiss::AddResponse* response);
+    virtual ::grpc::Status AddVector(::grpc::ServerContext* context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response);
+    // rpc RemoveVectorByIdRequest (RemoveVectorByIdRequest) returns (RemoveVectorByIdResponse);
   };
   template <class BaseClass>
   class WithAsyncMethod_Heartbeat : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_Heartbeat() {
       ::grpc::Service::MarkMethodAsync(0);
@@ -142,7 +274,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Heartbeat(::grpc::ServerContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response) override {
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -153,7 +285,7 @@ class FaissService final {
   template <class BaseClass>
   class WithAsyncMethod_Search : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_Search() {
       ::grpc::Service::MarkMethodAsync(1);
@@ -162,7 +294,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Search(::grpc::ServerContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response) override {
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -173,7 +305,7 @@ class FaissService final {
   template <class BaseClass>
   class WithAsyncMethod_SearchById : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithAsyncMethod_SearchById() {
       ::grpc::Service::MarkMethodAsync(2);
@@ -182,7 +314,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SearchById(::grpc::ServerContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response) override {
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -191,30 +323,223 @@ class FaissService final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_Add : public BaseClass {
+  class WithAsyncMethod_AddVector : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_Add() {
+    WithAsyncMethod_AddVector() {
       ::grpc::Service::MarkMethodAsync(3);
     }
-    ~WithAsyncMethod_Add() override {
+    ~WithAsyncMethod_AddVector() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Add(::grpc::ServerContext* context, const ::faiss::AddRequest* request, ::faiss::AddResponse* response) override {
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestAdd(::grpc::ServerContext* context, ::faiss::AddRequest* request, ::grpc::ServerAsyncResponseWriter< ::faiss::AddResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestAddVector(::grpc::ServerContext* context, ::faiss::AddVectorRequest* request, ::grpc::ServerAsyncResponseWriter< ::faiss::AddVectorResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_Heartbeat<WithAsyncMethod_Search<WithAsyncMethod_SearchById<WithAsyncMethod_Add<Service > > > > AsyncService;
+  typedef WithAsyncMethod_Heartbeat<WithAsyncMethod_Search<WithAsyncMethod_SearchById<WithAsyncMethod_AddVector<Service > > > > AsyncService;
+  template <class BaseClass>
+  class ExperimentalWithCallbackMethod_Heartbeat : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithCallbackMethod_Heartbeat() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodCallback(0,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::google::protobuf::Empty, ::faiss::HeartbeatResponse>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response) { return this->Heartbeat(context, request, response); }));}
+    void SetMessageAllocatorFor_Heartbeat(
+        ::grpc::experimental::MessageAllocator< ::google::protobuf::Empty, ::faiss::HeartbeatResponse>* allocator) {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
+    #else
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(0);
+    #endif
+      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::google::protobuf::Empty, ::faiss::HeartbeatResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~ExperimentalWithCallbackMethod_Heartbeat() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Heartbeat(
+      ::grpc::CallbackServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Heartbeat(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithCallbackMethod_Search : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithCallbackMethod_Search() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodCallback(1,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::faiss::SearchRequest, ::faiss::SearchResponse>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response) { return this->Search(context, request, response); }));}
+    void SetMessageAllocatorFor_Search(
+        ::grpc::experimental::MessageAllocator< ::faiss::SearchRequest, ::faiss::SearchResponse>* allocator) {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(1);
+    #else
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(1);
+    #endif
+      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::faiss::SearchRequest, ::faiss::SearchResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~ExperimentalWithCallbackMethod_Search() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Search(
+      ::grpc::CallbackServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Search(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithCallbackMethod_SearchById : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithCallbackMethod_SearchById() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodCallback(2,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::faiss::SearchByIdRequest, ::faiss::SearchByIdResponse>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response) { return this->SearchById(context, request, response); }));}
+    void SetMessageAllocatorFor_SearchById(
+        ::grpc::experimental::MessageAllocator< ::faiss::SearchByIdRequest, ::faiss::SearchByIdResponse>* allocator) {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(2);
+    #else
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(2);
+    #endif
+      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::faiss::SearchByIdRequest, ::faiss::SearchByIdResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~ExperimentalWithCallbackMethod_SearchById() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* SearchById(
+      ::grpc::CallbackServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* SearchById(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithCallbackMethod_AddVector : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithCallbackMethod_AddVector() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodCallback(3,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::faiss::AddVectorRequest, ::faiss::AddVectorResponse>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::faiss::AddVectorRequest* request, ::faiss::AddVectorResponse* response) { return this->AddVector(context, request, response); }));}
+    void SetMessageAllocatorFor_AddVector(
+        ::grpc::experimental::MessageAllocator< ::faiss::AddVectorRequest, ::faiss::AddVectorResponse>* allocator) {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
+    #else
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(3);
+    #endif
+      static_cast<::grpc_impl::internal::CallbackUnaryHandler< ::faiss::AddVectorRequest, ::faiss::AddVectorResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~ExperimentalWithCallbackMethod_AddVector() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* AddVector(
+      ::grpc::CallbackServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* AddVector(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+  typedef ExperimentalWithCallbackMethod_Heartbeat<ExperimentalWithCallbackMethod_Search<ExperimentalWithCallbackMethod_SearchById<ExperimentalWithCallbackMethod_AddVector<Service > > > > CallbackService;
+  #endif
+
+  typedef ExperimentalWithCallbackMethod_Heartbeat<ExperimentalWithCallbackMethod_Search<ExperimentalWithCallbackMethod_SearchById<ExperimentalWithCallbackMethod_AddVector<Service > > > > ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_Heartbeat : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_Heartbeat() {
       ::grpc::Service::MarkMethodGeneric(0);
@@ -223,7 +548,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Heartbeat(::grpc::ServerContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response) override {
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -231,7 +556,7 @@ class FaissService final {
   template <class BaseClass>
   class WithGenericMethod_Search : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_Search() {
       ::grpc::Service::MarkMethodGeneric(1);
@@ -240,7 +565,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Search(::grpc::ServerContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response) override {
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -248,7 +573,7 @@ class FaissService final {
   template <class BaseClass>
   class WithGenericMethod_SearchById : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithGenericMethod_SearchById() {
       ::grpc::Service::MarkMethodGeneric(2);
@@ -257,24 +582,24 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SearchById(::grpc::ServerContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response) override {
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_Add : public BaseClass {
+  class WithGenericMethod_AddVector : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_Add() {
+    WithGenericMethod_AddVector() {
       ::grpc::Service::MarkMethodGeneric(3);
     }
-    ~WithGenericMethod_Add() override {
+    ~WithGenericMethod_AddVector() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Add(::grpc::ServerContext* context, const ::faiss::AddRequest* request, ::faiss::AddResponse* response) override {
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -282,7 +607,7 @@ class FaissService final {
   template <class BaseClass>
   class WithRawMethod_Heartbeat : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_Heartbeat() {
       ::grpc::Service::MarkMethodRaw(0);
@@ -291,7 +616,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Heartbeat(::grpc::ServerContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response) override {
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -302,7 +627,7 @@ class FaissService final {
   template <class BaseClass>
   class WithRawMethod_Search : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_Search() {
       ::grpc::Service::MarkMethodRaw(1);
@@ -311,7 +636,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Search(::grpc::ServerContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response) override {
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -322,7 +647,7 @@ class FaissService final {
   template <class BaseClass>
   class WithRawMethod_SearchById : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithRawMethod_SearchById() {
       ::grpc::Service::MarkMethodRaw(2);
@@ -331,7 +656,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SearchById(::grpc::ServerContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response) override {
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -340,29 +665,181 @@ class FaissService final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_Add : public BaseClass {
+  class WithRawMethod_AddVector : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_Add() {
+    WithRawMethod_AddVector() {
       ::grpc::Service::MarkMethodRaw(3);
     }
-    ~WithRawMethod_Add() override {
+    ~WithRawMethod_AddVector() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status Add(::grpc::ServerContext* context, const ::faiss::AddRequest* request, ::faiss::AddResponse* response) override {
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestAdd(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestAddVector(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
+  class ExperimentalWithRawCallbackMethod_Heartbeat : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithRawCallbackMethod_Heartbeat() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodRawCallback(0,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->Heartbeat(context, request, response); }));
+    }
+    ~ExperimentalWithRawCallbackMethod_Heartbeat() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Heartbeat(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Heartbeat(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithRawCallbackMethod_Search : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithRawCallbackMethod_Search() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodRawCallback(1,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->Search(context, request, response); }));
+    }
+    ~ExperimentalWithRawCallbackMethod_Search() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* Search(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* Search(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithRawCallbackMethod_SearchById : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithRawCallbackMethod_SearchById() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodRawCallback(2,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->SearchById(context, request, response); }));
+    }
+    ~ExperimentalWithRawCallbackMethod_SearchById() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* SearchById(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* SearchById(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
+  class ExperimentalWithRawCallbackMethod_AddVector : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    ExperimentalWithRawCallbackMethod_AddVector() {
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+      ::grpc::Service::
+    #else
+      ::grpc::Service::experimental().
+    #endif
+        MarkMethodRawCallback(3,
+          new ::grpc_impl::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+                   ::grpc::CallbackServerContext*
+    #else
+                   ::grpc::experimental::CallbackServerContext*
+    #endif
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AddVector(context, request, response); }));
+    }
+    ~ExperimentalWithRawCallbackMethod_AddVector() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
+    virtual ::grpc::ServerUnaryReactor* AddVector(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #else
+    virtual ::grpc::experimental::ServerUnaryReactor* AddVector(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
+    #endif
+      { return nullptr; }
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_Heartbeat : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_Heartbeat() {
       ::grpc::Service::MarkMethodStreamed(0,
@@ -372,7 +849,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status Heartbeat(::grpc::ServerContext* context, const ::google::protobuf::Empty* request, ::faiss::HeartbeatResponse* response) override {
+    ::grpc::Status Heartbeat(::grpc::ServerContext* /*context*/, const ::google::protobuf::Empty* /*request*/, ::faiss::HeartbeatResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -382,7 +859,7 @@ class FaissService final {
   template <class BaseClass>
   class WithStreamedUnaryMethod_Search : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_Search() {
       ::grpc::Service::MarkMethodStreamed(1,
@@ -392,7 +869,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status Search(::grpc::ServerContext* context, const ::faiss::SearchRequest* request, ::faiss::SearchResponse* response) override {
+    ::grpc::Status Search(::grpc::ServerContext* /*context*/, const ::faiss::SearchRequest* /*request*/, ::faiss::SearchResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -402,7 +879,7 @@ class FaissService final {
   template <class BaseClass>
   class WithStreamedUnaryMethod_SearchById : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
     WithStreamedUnaryMethod_SearchById() {
       ::grpc::Service::MarkMethodStreamed(2,
@@ -412,7 +889,7 @@ class FaissService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status SearchById(::grpc::ServerContext* context, const ::faiss::SearchByIdRequest* request, ::faiss::SearchByIdResponse* response) override {
+    ::grpc::Status SearchById(::grpc::ServerContext* /*context*/, const ::faiss::SearchByIdRequest* /*request*/, ::faiss::SearchByIdResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -420,28 +897,28 @@ class FaissService final {
     virtual ::grpc::Status StreamedSearchById(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::faiss::SearchByIdRequest,::faiss::SearchByIdResponse>* server_unary_streamer) = 0;
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_Add : public BaseClass {
+  class WithStreamedUnaryMethod_AddVector : public BaseClass {
    private:
-    void BaseClassMustBeDerivedFromService(const Service *service) {}
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithStreamedUnaryMethod_Add() {
+    WithStreamedUnaryMethod_AddVector() {
       ::grpc::Service::MarkMethodStreamed(3,
-        new ::grpc::internal::StreamedUnaryHandler< ::faiss::AddRequest, ::faiss::AddResponse>(std::bind(&WithStreamedUnaryMethod_Add<BaseClass>::StreamedAdd, this, std::placeholders::_1, std::placeholders::_2)));
+        new ::grpc::internal::StreamedUnaryHandler< ::faiss::AddVectorRequest, ::faiss::AddVectorResponse>(std::bind(&WithStreamedUnaryMethod_AddVector<BaseClass>::StreamedAddVector, this, std::placeholders::_1, std::placeholders::_2)));
     }
-    ~WithStreamedUnaryMethod_Add() override {
+    ~WithStreamedUnaryMethod_AddVector() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status Add(::grpc::ServerContext* context, const ::faiss::AddRequest* request, ::faiss::AddResponse* response) override {
+    ::grpc::Status AddVector(::grpc::ServerContext* /*context*/, const ::faiss::AddVectorRequest* /*request*/, ::faiss::AddVectorResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedAdd(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::faiss::AddRequest,::faiss::AddResponse>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedAddVector(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::faiss::AddVectorRequest,::faiss::AddVectorResponse>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_Heartbeat<WithStreamedUnaryMethod_Search<WithStreamedUnaryMethod_SearchById<WithStreamedUnaryMethod_Add<Service > > > > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_Heartbeat<WithStreamedUnaryMethod_Search<WithStreamedUnaryMethod_SearchById<WithStreamedUnaryMethod_AddVector<Service > > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_Heartbeat<WithStreamedUnaryMethod_Search<WithStreamedUnaryMethod_SearchById<WithStreamedUnaryMethod_Add<Service > > > > StreamedService;
+  typedef WithStreamedUnaryMethod_Heartbeat<WithStreamedUnaryMethod_Search<WithStreamedUnaryMethod_SearchById<WithStreamedUnaryMethod_AddVector<Service > > > > StreamedService;
 };
 
 }  // namespace faiss

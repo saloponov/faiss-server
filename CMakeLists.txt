@@ -1,5 +1,6 @@
-project(faiss-server)
 cmake_minimum_required(VERSION 3.11.4)
+project(faiss-server)
+
 include(ExternalProject)
 
 # c-ares
@@ -17,21 +18,26 @@ ExternalProject_Add(c-ares
 )
 
 # protobuf
-set(PROTOBUF_VERSION v3.6.1)
-set(PROTOBUF_URL https://github.com/google/protobuf/archive/${PROTOBUF_VERSION}.zip)
+set(PROTOBUF_VERSION v3.11.2)
+set(PROTOBUF_GIT_URL https://github.com/protocolbuffers/protobuf.git)
 
 ExternalProject_Add(protobuf
     PREFIX protobuf
-    URL ${PROTOBUF_URL}
+    GIT_REPOSITORY ${PROTOBUF_GIT_URL}
+    GIT_TAG ${PROTOBUF_VERSION}
+    GIT_SUBMODULES
     SOURCE_SUBDIR cmake
+    STEP_TARGETS build install
     CMAKE_CACHE_ARGS
-        -Dprotobuf_BUILD_TESTS:BOOL=OFF
-        -Dprotobuf_WITH_ZLIB:BOOL=OFF
-        -Dprotobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
+        -DProtobuf_BUILD_TESTS:BOOL=OFF
+        -DProtobuf_WITH_ZLIB:BOOL=OFF
+        -DProtobuf_MSVC_STATIC_RUNTIME:BOOL=OFF
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/protobuf
 )
 
 set(_FINDPACKAGE_PROTOBUF_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/protobuf/lib/cmake/protobuf")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/protobuf/lib/cmake/protobuf")
+
 
 # zlib
 set(ZLIB_VERSION 1.2.11)
@@ -45,13 +51,15 @@ ExternalProject_Add(zlib
 )
 
 # gRPC
-set(GRPC_VERSION v1.14.2)
-set(GRPC_URL https://github.com/grpc/grpc/archive/${GRPC_VERSION}.zip)
+set(GRPC_VERSION v1.28.0)
+set(GRPC_GIT_URL https://github.com/grpc/grpc.git)
 
 ExternalProject_Add(grpc
     PREFIX grpc
-    URL ${GRPC_URL}
-    DEPENDS c-ares protobuf zlib
+    GIT_REPOSITORY ${GRPC_GIT_URL}
+    GIT_TAG ${GRPC_VERSION}
+    GIT_SUBMODULES
+    STEP_TARGETS build
     CMAKE_CACHE_ARGS
         -DgRPC_INSTALL:BOOL=ON
         -DgRPC_BUILD_TESTS:BOOL=OFF
@@ -60,8 +68,6 @@ ExternalProject_Add(grpc
         -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
         -DgRPC_ZLIB_PROVIDER:STRING=package
         -DZLIB_ROOT:STRING=${CMAKE_CURRENT_BINARY_DIR}/zlib
-        -DgRPC_CARES_PROVIDER:STRING=package
-        -Dc-ares_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/c-ares/lib/cmake/c-ares
         -DgRPC_SSL_PROVIDER:STRING=package
         -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/grpc
 )
@@ -119,16 +125,18 @@ ExternalProject_Add(spdlog
 )
 set(SPDLOG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/spdlog/include)
 
+message(${CMAKE_CURRENT_BINARY_DIR})
+
 # faiss-server
 ExternalProject_Add(faiss-server
-  PREFIX faiss-server
-  SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src"
-  BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/bin"
-  INSTALL_COMMAND ""
-  CMAKE_CACHE_ARGS
-        -DProtobuf_DIR:PATH=${_FINDPACKAGE_PROTOBUF_CONFIG_DIR}
+    PREFIX faiss-server
+    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src"
+    BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/bin"
+    INSTALL_COMMAND ""
+    CMAKE_CACHE_ARGS
+        -Dprotobuf_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/protobuf/lib/cmake/protobuf/
         -Dc-ares_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/c-ares/lib/cmake/c-ares
         -DZLIB_ROOT:STRING=${CMAKE_CURRENT_BINARY_DIR}/zlib
         -DgRPC_DIR:PATH=${CMAKE_CURRENT_BINARY_DIR}/grpc/lib/cmake/grpc
-  DEPENDS protobuf grpc faiss spdlog gflags
+    DEPENDS protobuf grpc faiss spdlog gflags
 )

@@ -36,8 +36,29 @@ message SearchByIdResponse {
     repeated Neighbor neighbors = 2;
 };
 
+message AddVectorRequest {
+    uint64 id = 1;
+    Vector vector = 2;
+}
+
+message AddVectorResponse {
+    uint64 request_id = 1;
+    uint64 vector_id = 2;
+}
+
+//message RemoveVectorByIdRequest {
+//    uint64 id = 1;
+//    uint64 vector_id = 2;
+//}
+//
+//message RemoveVectorByIdResponse {
+//
+//}
+
 service FaissService {
     rpc Heartbeat (google.protobuf.Empty) returns (HeartbeatResponse);
     rpc Search(SearchRequest) returns (SearchResponse);
     rpc SearchById(SearchByIdRequest) returns (SearchByIdResponse);
+    rpc AddVector (AddVectorRequest) returns (AddVectorResponse);
+    //rpc RemoveVectorByIdRequest (RemoveVectorByIdRequest) returns (RemoveVectorByIdResponse);
 };
